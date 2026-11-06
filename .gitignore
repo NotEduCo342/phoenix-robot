@@ -1,0 +1,35 @@
+# PlatformIO build directory and dependencies
+.pio/
+.pioenvs/
+.piolibdeps/
+.clang_complete
+.gcc-flags.json
+
+# IDE / Editor files
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ESP-IDF SDK configuration backups & generated artifacts
+sdkconfig.old
+sdkconfig.*.old
+build/
+*.bin
+*.elf
+*.map
+
+# Temporary and backup files
+*.bak
+*~
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class

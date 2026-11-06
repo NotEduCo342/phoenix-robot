@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GAME PHOENIX | Robot Control</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="app-card">
+    <!-- Header with SVG Logo -->
+    <div class="logo-wrap">
+      <svg viewBox="0 0 240 240" class="logo-svg">
+        <defs>
+          <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#00f2fe"/>
+            <stop offset="45%" stop-color="#4facfe"/>
+            <stop offset="75%" stop-color="#ff007f"/>
+            <stop offset="100%" stop-color="#ff9900"/>
+          </linearGradient>
+          <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+          </filter>
+        </defs>
+        <circle cx="120" cy="120" r="105" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="4"/>
+        <circle cx="120" cy="120" r="95" fill="none" stroke="url(#g1)" stroke-width="2.5" stroke-dasharray="8 6"/>
+        <g fill="none" stroke="url(#g1)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)">
+          <path d="M 120 40 L 95 105 L 120 90 L 145 105 Z" fill="rgba(0,242,254,0.15)"/>
+          <path d="M 85 108 C 72 118, 64 125, 82 128 C 74 144, 88 165, 120 195 C 152 165, 166 144, 158 128 C 176 125, 168 118, 155 108"/>
+          <path d="M 120 90 L 120 180"/>
+        </g>
+        <text x="120" y="222" text-anchor="middle" font-family="Arial,sans-serif" font-weight="900" font-size="20" letter-spacing="3" fill="url(#g1)" filter="url(#glow)">GAMEPHOENIX</text>
+      </svg>
+    </div>
+
+    <div class="brand-subtitle">SMART DESKTOP ROBOT</div>
+
+    <!-- VIEW 1: ONBOARDING / WI-FI SETUP -->
+    <div id="view-setup" class="view-panel">
+      <h1 class="panel-title">Wi-Fi Setup</h1>
+      <p class="panel-desc">Connect the robot to your home or office 2.4GHz network.</p>
+
+      <div class="network-box">
+        <div class="network-header">
+          <span>Nearby Networks</span>
+          <button type="button" id="btn-refresh-scan" class="btn-text">🔄 Scan Again</button>
+        </div>
+        <div id="ap-list" class="ap-list">
+          <div class="status-msg"><div class="mini-spinner"></div>Scanning frequencies...</div>
+        </div>
+      </div>
+
+      <form id="form-wifi" class="form-card">
+        <div class="input-group">
+          <label for="wifi-ssid">Network Name (SSID)</label>
+          <input type="text" id="wifi-ssid" placeholder="Select above or enter SSID" required autocomplete="off">
+        </div>
+        <div class="input-group">
+          <label for="wifi-pass">Password</label>
+          <input type="password" id="wifi-pass" placeholder="Network password (optional for open)">
+        </div>
+        <button type="submit" id="btn-connect" class="btn-primary">Connect Robot to Wi-Fi</button>
+      </form>
+
+      <div id="setup-status-box" class="setup-status-card" style="display:none;">
+        <div id="setup-spinner" class="spinner"></div>
+        <div id="setup-status-title" class="status-title">Connecting to network...</div>
+        <div id="setup-status-desc" class="status-desc">Please wait while the robot authenticates.</div>
+      </div>
+    </div>
+
+    <!-- VIEW 2: NORMAL OPERATING DASHBOARD (ALARM & CONTROLS) -->
+    <div id="view-dashboard" class="view-panel" style="display:none;">
+      <h1 class="panel-title">Robot Controller</h1>
+
+      <div class="telemetry-bar">
+        <div class="telemetry-item">
+          <span class="tele-label">ROUTER IP</span>
+          <span id="tele-ip" class="tele-val">---</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="tele-label">SIGNAL</span>
+          <span id="tele-rssi" class="tele-val">---</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="tele-label">TIME SYNC</span>
+          <span id="tele-ntp" class="tele-val">---</span>
+        </div>
+      </div>
+
+      <!-- Alarm Section -->
+      <div id="alarm-banner" class="alarm-banner banner-idle">
+        <div class="banner-badge" id="alarm-badge">ALARM OFF</div>
+        <div class="banner-time" id="alarm-countdown">--:--:--</div>
+        <div class="banner-sub" id="alarm-sub">No wake-up timer active</div>
+      </div>
+
+      <div class="section-title">Set Wake-Up Timer</div>
+      <div class="timer-stepper">
+        <div class="stepper-col">
+          <input type="number" id="alarm-h" min="0" max="72" value="0">
+          <span>HOURS</span>
+        </div>
+        <div class="stepper-colon">:</div>
+        <div class="stepper-col">
+          <input type="number" id="alarm-m" min="0" max="59" value="20">
+          <span>MINUTES</span>
+        </div>
+      </div>
+
+      <div class="quick-presets">
+        <button type="button" class="preset-chip" onclick="setPreset(0, 15)">15m</button>
+        <button type="button" class="preset-chip" onclick="setPreset(0, 30)">30m</button>
+        <button type="button" class="preset-chip" onclick="setPreset(1, 0)">1h</button>
+        <button type="button" class="preset-chip" onclick="setPreset(8, 0)">8h</button>
+      </div>
+
+      <div class="action-buttons">
+        <button type="button" id="btn-set-alarm" class="btn-primary" onclick="submitAlarm()">Set Wake-Up Alarm</button>
+        <button type="button" id="btn-cancel-alarm" class="btn-danger" style="display:none;" onclick="cancelAlarm()">Cancel Active Alarm</button>
+      </div>
+
+      <div class="footer-card">
+        <div>Connected to: <b id="tele-ssid" style="color:#00f2fe;">---</b></div>
+        <div style="font-size:10px;color:#8b949e;margin-top:4px;">Permanent pure STA mode enabled. SoftAP is off.</div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
+
